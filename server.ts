@@ -15,7 +15,7 @@ async function startServer() {
   
   // Helper to get Gemini Client safely
   const getGenAI = () => {
-    const key = process.env.GEMINI_API_KEY;
+    const key = process.env.MY_GEMINI_API_KEY;
     
     // DIAGNOSTIC LOG (Cloud Run Logs mein nazar ayega)
     if (!key) {
@@ -39,7 +39,7 @@ async function startServer() {
       const { prompt } = req.body;
       const genAI = getGenAI();
       const response = await genAI.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [{ parts: [{ text: prompt }] }],
       });
       res.json({ text: response.text });
@@ -55,7 +55,7 @@ async function startServer() {
       const { imageBase64 } = req.body;
       const genAI = getGenAI();
       const response = await genAI.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [
           {
             parts: [

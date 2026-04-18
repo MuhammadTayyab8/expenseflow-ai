@@ -140,7 +140,7 @@ export default function ExpenseForm({ onSubmit, onClose, initialData }: ExpenseF
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="card w-full max-w-md max-h-[85vh] overflow-y-auto relative shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-accent/20"
+        className="card w-full max-w-md max-h-[75vh] md:max-h-[85vh] overflow-y-auto relative shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-accent/20"
       >
         <button 
           onClick={onClose}

@@ -24,6 +24,20 @@ interface DashboardProps {
   onNavigate?: (v: any) => void;
 }
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-secondary/95 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-md">
+        <p className="text-[10px] uppercase font-bold text-foreground/40 tracking-widest mb-1">{payload[0].name}</p>
+        <p className="text-sm font-mono font-bold text-accent">
+          ${Number(payload[0].value).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function Dashboard({ onNavigate }: DashboardProps) {
   const { expenses, addExpense, removeExpense, loading } = useExpenses();
   const { user } = useAuth();
@@ -198,7 +212,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#444' }} dy={10} />
                 <Tooltip 
                   cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                  contentStyle={{ background: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: '12px', fontSize: '10px' }}
+                  content={<CustomTooltip />}
                 />
                 <Bar 
                   dataKey="total" 
@@ -229,7 +243,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

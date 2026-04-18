@@ -48,6 +48,11 @@
   }
 }
 
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none !important;
+}
+
 /* Theme Specific Components */
 .sidebar {
   @apply w-[240px] border-r border-border h-screen flex flex-col p-8 gap-10;
@@ -73,3 +78,5 @@
 .glass {
   @apply bg-secondary/40 backdrop-blur-xl border border-border;
 }
+
+
