@@ -94,16 +94,6 @@ export default function LandingPage() {
               </div>
 
               <div className="w-full space-y-6">
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] uppercase text-foreground/40 font-bold ml-1 tracking-widest">Context Node</label>
-                    <div className="input-themed opacity-50 cursor-not-allowed flex items-center justify-between px-4 py-3 bg-white/5 border border-white/10 rounded-xl">
-                      <span className="text-xs text-foreground/30">Select provider...</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                    </div>
-                  </div>
-                </div>
-
                 <div className="pt-2">
                   <button 
                     onClick={login}

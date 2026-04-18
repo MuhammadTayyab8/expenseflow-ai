@@ -13,30 +13,47 @@ async function startServer() {
 
   const PORT = Number(process.env.PORT) || 3000;
   
-  // Initialize Gemini on the server where process.env is reliable
-  const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+  // Helper to get Gemini Client safely
+  const getGenAI = () => {
+    const key = process.env.GEMINI_API_KEY;
+    
+    // DIAGNOSTIC LOG (Cloud Run Logs mein nazar ayega)
+    if (!key) {
+      console.error("❌ DIAGNOSTIC: GEMINI_API_KEY is completely MISSING.");
+    } else {
+      console.log(`🔍 DIAGNOSTIC: Key found. Length: ${key.length}, Starts with: ${key.substring(0, 4)}...`);
+      if (!key.startsWith("AIza")) {
+        console.warn("⚠️ WARNING: Your key does NOT start with 'AIza'. Gemini keys usually start with 'AIza'. Please check if you copied a URL or something else by mistake.");
+      }
+    }
+
+    if (!key || key.trim() === "") {
+      throw new Error("GEMINI_API_KEY is missing or empty in environment variables.");
+    }
+    return new GoogleGenAI({ apiKey: key.trim() });
+  };
 
   // API Route for Spending Insights
   app.post('/api/ai/insights', async (req, res) => {
     try {
-      if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured on server");
       const { prompt } = req.body;
+      const genAI = getGenAI();
       const response = await genAI.models.generateContent({
         model: "gemini-1.5-flash",
         contents: [{ parts: [{ text: prompt }] }],
       });
       res.json({ text: response.text });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'AI Error' });
+    } catch (error: any) {
+      console.error('AI Insights Error:', error.message || error);
+      res.status(500).json({ error: error.message || 'AI processing failed' });
     }
   });
 
   // API Route for Receipt Scanning
   app.post('/api/ai/scan-receipt', async (req, res) => {
     try {
-      if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured on server");
       const { imageBase64 } = req.body;
+      const genAI = getGenAI();
       const response = await genAI.models.generateContent({
         model: "gemini-1.5-flash",
         contents: [
