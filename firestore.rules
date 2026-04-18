@@ -1,0 +1,99 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {uid}
+// Fields:
+//   - uid: string (required) - Firebase Auth UID
+//   - email: string (required) - User's email
+//   - displayName: string (optional) - User's display name
+//   - role: string (required) - enum ['user', 'admin']
+//   - createdAt: timestamp (optional) - When user joined
+//
+// Collection: expenses
+// Document ID: auto-generated or {expenseId}
+// Fields:
+//   - userId: string (required) - Owner UID
+//   - amount: number (required) - Spend amount
+//   - category: string (required) - Spend category
+//   - date: timestamp (required) - When spend occurred
+//   - description: string (optional) - Details
+//   - tags: list (optional) - Array of strings
+//   - createdAt: timestamp (required) - Entry creation time
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+         (request.auth.token.email == "tayyabcbspakistan@gmail.com" && request.auth.token.email_verified == true)); // Default admin
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['uid', 'email', 'displayName', 'role', 'createdAt']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['user', 'admin'];
+    }
+
+    function isValidExpense(data) {
+      return data.userId is string &&
+             data.amount is number && data.amount >= 0 &&
+             data.category is string && data.category.size() < 100 &&
+             data.date is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Public health check document
+    match /system/health {
+      allow read: if true;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && isValidUser(request.resource.data) && (request.resource.data.role == 'user' || isAdmin());
+      allow update: if isOwner(uid) && isValidUser(request.resource.data) && (request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+      
+      allow create: if isAuthenticated() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    isValidExpense(request.resource.data);
+                    
+      allow update: if isAuthenticated() && 
+                    resource.data.userId == request.auth.uid && 
+                    request.resource.data.userId == resource.data.userId &&
+                    isValidExpense(request.resource.data);
+                    
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

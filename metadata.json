@@ -1,0 +1,13 @@
+{
+  "name": "ExpenseFlow: AI Ledger",
+  "description": "A high-precision, elegant dark-themed expense tracker with AI insights and advanced analytics.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "AI-powered expense analysis",
+    "Real-time data visualization",
+    "Multi-user tracking",
+    "Admin control panel"
+  ]
+}
