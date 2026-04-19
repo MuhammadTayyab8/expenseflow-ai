@@ -35,23 +35,54 @@ export default function Reports() {
 
   const exportPDF = () => {
     const doc = new jsPDF() as any;
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const timestamp = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
     
-    // Add title
-    doc.setFontSize(20);
-    doc.text('ExpenseFlow Report', 14, 22);
-    
-    // Add Summary
-    doc.setFontSize(11);
-    doc.text(`Period: ${dateRange.start} to ${dateRange.end}`, 14, 30);
-    doc.text(`Category: ${selectedCategory}`, 14, 36);
-    doc.text(`Total Amount: $${totalAmount.toFixed(2)}`, 14, 42);
-    doc.text(`Total Entries: ${filteredExpenses.length}`, 14, 48);
+    // Header & Branding
+    const addHeader = (data: any) => {
+      // Background for header
+      doc.setFillColor(26, 26, 26);
+      doc.rect(0, 0, pageWidth, 45, 'F');
+      
+      // Logo / App Name
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(0, 255, 95); // Accent color
+      doc.text('ExpenseFlow', 14, 18);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255, 0.4);
+      doc.text('PRECISION LEDGER SYSTEM v1.0', 14, 24);
 
-    const tableColumn = ["Date", "Description", "Category", "Amount"];
+      // Report Title
+      doc.setFontSize(16);
+      doc.setTextColor(255, 255, 255);
+      doc.text('FINANCIAL EXPENDITURE REPORT', 14, 38);
+
+      // Filters Info (Right side)
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`DATE RANGE: ${dateRange.start} TO ${dateRange.end}`, pageWidth - 14, 18, { align: 'right' });
+      doc.text(`CATEGORY: ${selectedCategory.toUpperCase()}`, pageWidth - 14, 24, { align: 'right' });
+      doc.text(`GENERATED: ${timestamp}`, pageWidth - 14, 30, { align: 'right' });
+    };
+
+    const addFooter = (data: any) => {
+      const pageNumber = data.pageNumber;
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`PAGE ${pageNumber}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      doc.text('CONFIDENTIAL - FOR AUTHORIZED USE ONLY', 14, pageHeight - 10);
+      doc.text('POWERED BY EXPENSEFLOW AI', pageWidth - 14, pageHeight - 10, { align: 'right' });
+    };
+
+    // Table Data
+    const tableColumn = ["DATE", "DESCRIPTION", "CATEGORY", "AMOUNT"];
     const tableRows = filteredExpenses.map(e => [
       format(e.date, 'yyyy-MM-dd'),
-      e.description,
-      e.category,
+      e.description.toUpperCase(),
+      e.category.toUpperCase(),
       `$${e.amount.toFixed(2)}`
     ]);
 
@@ -59,10 +90,52 @@ export default function Reports() {
       head: [tableColumn],
       body: tableRows,
       startY: 55,
-      theme: 'grid',
-      headStyles: { fillColor: [0, 255, 95], textColor: [0, 0, 0] },
-      styles: { fontSize: 9 }
+      theme: 'striped',
+      headStyles: { 
+        fillColor: [0, 255, 95], 
+        textColor: [0, 0, 0],
+        fontStyle: 'bold',
+        fontSize: 10,
+        halign: 'left'
+      },
+      bodyStyles: {
+        fontSize: 9,
+        textColor: [40, 40, 40]
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245]
+      },
+      columnStyles: {
+        3: { halign: 'right', fontStyle: 'bold' }
+      },
+      margin: { top: 55, bottom: 20 },
+      didDrawPage: (data) => {
+        addHeader(data);
+        addFooter(data);
+      }
     });
+
+    // Summary Page (if results exist)
+    if (filteredExpenses.length > 0) {
+      const finalY = (doc as any).lastAutoTable.finalY + 15;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(14, finalY, pageWidth - 14, finalY);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text('REPORT SUMMARY', 14, finalY + 12);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Total Transaction Count: ${filteredExpenses.length}`, 14, finalY + 22);
+      doc.text(`Aggregate Expenditure:`, 14, finalY + 30);
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 180, 70);
+      doc.text(`$${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, 14, finalY + 40);
+    }
 
     doc.save(`ExpenseFlow_Report_${dateRange.start}_to_${dateRange.end}.pdf`);
   };
@@ -93,7 +166,7 @@ export default function Reports() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-8 pb-32">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8 pb-32">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight">Financial Reports</h2>
         <p className="text-sm text-foreground/40 font-mono tracking-widest uppercase">Export & Audit System v1.0_</p>
@@ -106,42 +179,49 @@ export default function Reports() {
           <h3 className="text-sm font-bold uppercase tracking-widest">Report Configuration</h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
             <label className="text-[10px] uppercase font-bold text-foreground/40 ml-1 tracking-widest">Start Date</label>
-            <div className="relative">
+            <div className="relative group">
               <input 
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="input-themed pr-10"
+                className="input-themed w-full pr-10 relative z-10 bg-transparent"
+                style={{ colorScheme: 'dark' }}
               />
-              <CalendarIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/20" />
+              <CalendarIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-accent/40 transition-colors pointer-events-none" />
             </div>
           </div>
           
           <div className="space-y-2">
             <label className="text-[10px] uppercase font-bold text-foreground/40 ml-1 tracking-widest">End Date</label>
-            <div className="relative">
+            <div className="relative group">
               <input 
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="input-themed pr-10"
+                className="input-themed w-full pr-10 relative z-10 bg-transparent"
+                style={{ colorScheme: 'dark' }}
               />
-              <CalendarIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/20" />
+              <CalendarIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-accent/40 transition-colors pointer-events-none" />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 sm:col-span-2 lg:col-span-1">
             <label className="text-[10px] uppercase font-bold text-foreground/40 ml-1 tracking-widest">Category</label>
-            <select 
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="input-themed appearance-none cursor-pointer"
-            >
-              {CATEGORIES.map(c => <option key={c} value={c} className="bg-background text-foreground">{c}</option>)}
-            </select>
+            <div className="relative">
+              <select 
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="input-themed w-full appearance-none cursor-pointer pr-10"
+              >
+                {CATEGORIES.map(c => <option key={c} value={c} className="bg-background text-foreground">{c}</option>)}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-foreground/20">
+                <Filter size={14} />
+              </div>
+            </div>
           </div>
         </div>
 

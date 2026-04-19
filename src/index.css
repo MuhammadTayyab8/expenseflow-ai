@@ -70,6 +70,20 @@
   @apply bg-black border border-border px-4 py-2.5 rounded-lg text-foreground font-mono text-sm focus:border-accent/40 outline-none;
 }
 
+/* Hide native date picker icons to use custom Lucide icons */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
 .nav-item-active {
   @apply bg-secondary text-accent border border-accent/20;
 }
