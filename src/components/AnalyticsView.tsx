@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TrendingUp, Activity, PieChart as PieChartIcon, BarChart3, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { startOfMonth, endOfMonth, subMonths, isWithinInterval, format } from 'date-fns';
 
-const COLORS = ['#00FF5F', '#00DF5F', '#00BF5F', '#009F5F', '#007F5F', '#005F5F'];
+const COLORS = ['#00FF5F', '#A855F7', '#3B82F6', '#F59E0B', '#EF4444', '#EC4899', '#22D3EE', '#F472B6'];
 
 export default function AnalyticsView() {
   const { expenses } = useExpenses();

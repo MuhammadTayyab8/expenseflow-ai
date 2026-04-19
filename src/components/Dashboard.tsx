@@ -274,7 +274,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </button>
           </div>
           <div className="space-y-3">
-            {expenses.slice(0, 4).map(expense => (
+            {expenses.slice(0, 3).map(expense => (
               <div key={expense.id} className="flex justify-between items-center p-3 bg-white/[0.02] border border-border rounded-xl transition-all hover:bg-white/[0.04]">
                 <div className="flex items-center gap-4">
                   <div className="w-9 h-9 rounded-lg bg-border flex items-center justify-center text-foreground/60">

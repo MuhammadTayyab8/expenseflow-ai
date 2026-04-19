@@ -6,11 +6,12 @@ import AdminPanel from './components/AdminPanel';
 import ExpensesList from './components/ExpensesList';
 import AnalyticsView from './components/AnalyticsView';
 import SettingsView from './components/SettingsView';
+import Reports from './components/Reports';
 import ErrorBoundary from './components/ErrorBoundary';
-import { Shield, LayoutDashboard, LogOut, Settings, Wallet, BarChart3, Menu, X, Zap } from 'lucide-react';
+import { Shield, LayoutDashboard, LogOut, Settings, Wallet, BarChart3, Menu, X, Zap, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-type AppView = 'dashboard' | 'admin' | 'expenses' | 'analytics' | 'settings';
+type AppView = 'dashboard' | 'admin' | 'expenses' | 'analytics' | 'reports' | 'settings';
 
 function AppContent() {
   const { user, loading, isAdmin, logout } = useAuth();
@@ -41,6 +42,7 @@ function AppContent() {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'expenses', label: 'Expenses', icon: Wallet },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'reports', label: 'Reports', icon: FileText },
     ...(isAdmin ? [{ id: 'admin', label: 'Admin Panel', icon: Shield }] : []),
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -51,6 +53,7 @@ function AppContent() {
       case 'admin': return <AdminPanel onBack={() => setView('dashboard')} />;
       case 'expenses': return <ExpensesList />;
       case 'analytics': return <AnalyticsView />;
+      case 'reports': return <Reports />;
       case 'settings': return <SettingsView />;
       default: return <Dashboard onNavigate={navigate} />;
     }
