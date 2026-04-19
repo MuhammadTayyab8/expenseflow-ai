@@ -102,10 +102,13 @@ export default function ExpenseForm({ onSubmit, onClose, initialData }: ExpenseF
       const items = await scanReceipt(base64String);
 
       for (const item of items) {
+        const parsedDate = new Date(item.date);
+        const finalDate = isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+        
         await onSubmit({
           amount: item.amount,
           category: item.category,
-          date: new Date(item.date),
+          date: finalDate,
           description: item.description,
           tags: ['scanned-receipt']
         });

@@ -7,12 +7,14 @@ import {
 } from 'recharts';
 import { 
   DollarSign, Wallet, 
-  BrainCircuit, Plus, User, ShoppingCart, Car, Zap, Utensils
+  BrainCircuit, Plus, User, ShoppingCart, Car, Zap, Utensils, Camera
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, isWithinInterval, subMonths } from 'date-fns';
 import { getSpendingInsights } from '../services/geminiService';
 import ReactMarkdown from 'react-markdown';
+import { motion, AnimatePresence } from 'motion/react';
 import Modal from './Modal';
+import ExpenseForm from './ExpenseForm';
 
 const COLORS = ['#00FF5F', '#A855F7', '#3B82F6', '#F59E0B', '#EF4444', '#EC4899'];
 
@@ -43,6 +45,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const { user } = useAuth();
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   // Quick Add State
   const [formData, setFormData] = useState({ 
@@ -152,13 +155,22 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     <>
     <div className="p-4 md:p-8 space-y-8 pb-32 md:pb-8">
       {/* Header */}
-      <header className="flex justify-between items-center">
+      <header className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
-        <div className="flex items-center gap-3 bg-secondary px-4 py-2 rounded-full border border-border">
-          <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center">
-            <User size={14} className="text-foreground/60" />
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => setIsScanModalOpen(true)}
+            className="flex-1 md:flex-none btn-accent flex items-center justify-center gap-2 py-2 px-6 shadow-[0_0_15px_rgba(0,255,95,0.3)]"
+          >
+            <Camera size={16} />
+            Scan Receipt
+          </button>
+          <div className="flex items-center gap-3 bg-secondary px-4 py-2 rounded-full border border-border">
+            <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center">
+              <User size={14} className="text-foreground/60" />
+            </div>
+            <span className="text-sm font-medium">{user?.displayName || 'User'}</span>
           </div>
-          <span className="text-sm font-medium">{user?.displayName || 'User'}</span>
         </div>
       </header>
 
@@ -370,6 +382,17 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <ReactMarkdown>{aiInsight || ''}</ReactMarkdown>
       </div>
     </Modal>
+
+    <AnimatePresence>
+      {isScanModalOpen && (
+        <ExpenseForm 
+          onClose={() => setIsScanModalOpen(false)}
+          onSubmit={async (data) => {
+            await addExpense(data);
+          }}
+        />
+      )}
+    </AnimatePresence>
     </>
   );
 }

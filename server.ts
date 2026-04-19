@@ -59,7 +59,7 @@ async function startServer() {
         contents: [
           {
             parts: [
-              { text: "Analyze this receipt image and extract the items. Return a JSON array." },
+              { text: "Analyze this receipt image and extract the items. Return a JSON array. Ensure the date is in YYYY-MM-DD format. If the date is missing, use the current year/month/day if visible on the receipt, otherwise use '2026-01-01' as a placeholder." },
               {
                 inlineData: {
                   mimeType: "image/jpeg",
