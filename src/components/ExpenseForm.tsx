@@ -30,6 +30,7 @@ export default function ExpenseForm({ onSubmit, onClose, initialData }: ExpenseF
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{ success?: boolean; itemsCount?: number } | null>(null);
   const [scanError, setScanError] = useState('');
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -244,13 +245,23 @@ export default function ExpenseForm({ onSubmit, onClose, initialData }: ExpenseF
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] uppercase text-foreground/40 font-bold ml-1">Event Date</label>
-                <input 
-                  type="date"
-                  required
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="input-themed w-full cursor-pointer"
-                />
+                <div 
+                  className="relative group cursor-pointer"
+                  onClick={() => dateInputRef.current?.showPicker?.()}
+                >
+                  <input 
+                    ref={dateInputRef}
+                    type="date"
+                    required
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="input-themed w-full pr-10 cursor-pointer"
+                    style={{ colorScheme: 'dark' }}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-accent/40 transition-colors pointer-events-none z-10">
+                    <CalendarIcon size={16} />
+                  </div>
+                </div>
               </div>
             </div>
 

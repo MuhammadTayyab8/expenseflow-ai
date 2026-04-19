@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { useExpenses } from '../hooks/useExpenses';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import { 
   DollarSign, Wallet, 
-  BrainCircuit, Plus, User, ShoppingCart, Car, Zap, Utensils, Camera
+  BrainCircuit, Plus, User, ShoppingCart, Car, Zap, Utensils, Camera, Calendar
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, isWithinInterval, subMonths } from 'date-fns';
 import { getSpendingInsights } from '../services/geminiService';
@@ -46,6 +46,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   // Quick Add State
   const [formData, setFormData] = useState({ 
@@ -155,9 +156,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     <>
     <div className="p-4 md:p-8 space-y-8 pb-32 md:pb-8">
       {/* Header */}
+        {/* 
       <header className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
         <div className="flex items-center gap-3 w-full md:w-auto">
+        
           <button 
             onClick={() => setIsScanModalOpen(true)}
             className="flex-1 md:flex-none btn-accent flex items-center justify-center gap-2 py-2 px-6 shadow-[0_0_15px_rgba(0,255,95,0.3)]"
@@ -165,12 +168,24 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <Camera size={16} />
             Scan Receipt
           </button>
+
           <div className="flex items-center gap-3 bg-secondary px-4 py-2 rounded-full border border-border">
             <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center">
               <User size={14} className="text-foreground/60" />
             </div>
             <span className="text-sm font-medium">{user?.displayName || 'User'}</span>
           </div>
+        </div>
+      </header>
+          */}
+
+      <header className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
+        <div className="flex items-center gap-3 bg-secondary px-4 py-2 rounded-full border border-border">
+          <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center">
+            <User size={14} className="text-foreground/60" />
+          </div>
+          <span className="text-sm font-medium">{user?.displayName || 'User'}</span>
         </div>
       </header>
 
@@ -341,13 +356,23 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] uppercase text-foreground/40 font-bold ml-1">Date</label>
-                <input 
-                  type="date"
-                  required
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="input-themed"
-                />
+                <div 
+                  className="relative group cursor-pointer"
+                  onClick={() => dateInputRef.current?.showPicker?.()}
+                >
+                  <input 
+                    ref={dateInputRef}
+                    type="date"
+                    required
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className="input-themed w-full pr-10"
+                    style={{ colorScheme: 'dark' }}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/20 group-focus-within:text-accent/40 transition-colors pointer-events-none z-10">
+                    <Calendar size={16} />
+                  </div>
+                </div>
               </div>
               <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
                 <label className="text-[10px] uppercase text-foreground/40 font-bold ml-1">Category</label>

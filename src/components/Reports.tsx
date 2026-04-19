@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useExpenses, Expense } from '../hooks/useExpenses';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { FileText, Download, Filter, Calendar as CalendarIcon, Table as TableIcon } from 'lucide-react';
@@ -12,6 +12,8 @@ const CATEGORIES = [
 
 export default function Reports() {
   const { expenses } = useExpenses();
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
   const [dateRange, setDateRange] = useState({
     start: format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd'),
     end: format(new Date(), 'yyyy-MM-dd')
@@ -182,8 +184,12 @@ export default function Reports() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="space-y-2">
             <label className="text-[10px] uppercase font-bold text-foreground/40 ml-1 tracking-widest">Start Date</label>
-            <div className="relative group">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => startDateRef.current?.showPicker?.()}
+            >
               <input 
+                ref={startDateRef}
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
@@ -196,8 +202,12 @@ export default function Reports() {
           
           <div className="space-y-2">
             <label className="text-[10px] uppercase font-bold text-foreground/40 ml-1 tracking-widest">End Date</label>
-            <div className="relative group">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => endDateRef.current?.showPicker?.()}
+            >
               <input 
+                ref={endDateRef}
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
