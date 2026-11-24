@@ -11,7 +11,7 @@ async function startServer() {
   const app = express();
   app.use(express.json({ limit: '10mb' })); // For receipt images
 
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = Number(process.env.PORT) || 3001;
   
   // Helper to get Gemini Client safely
   const getGenAI = () => {

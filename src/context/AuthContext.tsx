@@ -52,8 +52,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      if (error?.code === 'auth/unauthorized-domain') {
+        alert(`Login blocked: "${window.location.hostname}" is not in Firebase Auth → Settings → Authorized domains.`);
+      } else if (error?.code !== 'auth/popup-closed-by-user' && error?.code !== 'auth/cancelled-popup-request') {
+        alert(`Login failed: ${error?.code || error?.message || error}`);
+      }
     }
   };
 
